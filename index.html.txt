@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>マンガ発売日カレンダー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 16px;
+      margin: 0;
+      background-color: #f7f7f7;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.5em;
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1em;
+      box-sizing: border-box;
+      margin-top: 10px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .book {
+      margin-top: 20px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .book img {
+      max-width: 100%;
+      height: auto;
+    }
+    a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #007bff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>マンガ発売日カレンダー</h1>
+
+  <input type="text" id="searchInput" placeholder="マンガタイトルで検索">
+  <button onclick="searchBooks()">検索</button>
+
+  <div id="results"></div>
+
+  <script>
+    function searchBooks() {
+      const query = document.getElementById("searchInput").value;
+      if (!query) return;
+
+      const appId = "1054248757211107215"; // ←ご自身の楽天アプリID
+      const url = `https://app.rakuten.co.jp/services/api/BooksTotal/Search/20170404?applicationId=${appId}&format=json&keyword=${encodeURIComponent(query)}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const resultsDiv = document.getElementById("results");
+          resultsDiv.innerHTML = "";
+
+          if (data.Items.length === 0) {
+            resultsDiv.innerHTML = "<p>結果が見つかりませんでした。</p>";
+            return;
+          }
+
+          data.Items.forEach(item => {
+            const book = item.Item;
+            const div = document.createElement("div");
+            div.className = "book";
+            div.innerHTML = `
+              <h3>${book.title}</h3>
+              <img src="${book.largeImageUrl}" alt="${book.title}">
+              <p>${book.itemCaption}</p>
+              <a href="${book.itemUrl}" target="_blank">楽天で見る</a>
+            `;
+            resultsDiv.appendChild(div);
+          });
+        })
+        .catch(error => {
+          console.error("検索エラー:", error);
+        });
+    }
+  </script>
+</body>
+</html>
