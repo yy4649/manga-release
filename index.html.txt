@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>マンガ発売日カレンダー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #f7f7f7;
+    }
+    h1 {
+      color: #333;
+    }
+    input {
+      padding: 8px;
+      width: 300px;
+    }
+    button {
+      padding: 8px 12px;
+      margin-left: 8px;
+    }
+    .book {
+      margin-top: 20px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>マンガ発売日カレンダー</h1>
+
+  <!-- 🔍 検索フォーム -->
+  <input type="text" id="searchInput" placeholder="マンガタイトルで検索">
+  <button onclick="searchBooks()">検索</button>
+
+  <div id="results"></div>
+
+  <script>
+    function searchBooks() {
+      const query = document.getElementById("searchInput").value;
+      if (!query) return;
+
+      const appId = "1054248757211107215"; // ここに自分のアプリIDを入力！
+      const url = `https://app.rakuten.co.jp/services/api/BooksTotal/Search/20170404?applicationId=${appId}&format=json&keyword=${encodeURIComponent(query)}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const resultsDiv = document.getElementById("results");
+          resultsDiv.innerHTML = "";
+
+          if (data.Items.length === 0) {
+            resultsDiv.innerHTML = "<p>結果が見つかりませんでした。</p>";
+            return;
+          }
+
+          data.Items.forEach(item => {
+            const book = item.Item;
+            const div = document.createElement("div");
+            div.className = "book";
+            div.innerHTML = `
+              <h3>${book.title}</h3>
+              <img src="${book.largeImageUrl}" alt="${book.title}" style="max-width:100px;">
+              <p>${book.itemCaption}</p>
+              <a href="${book.itemUrl}" target="_blank">楽天で見る</a>
+            `;
+            resultsDiv.appendChild(div);
+          });
+        })
+        .catch(error => {
+          console.error("検索エラー:", error);
+        });
+    }
+  </script>
+</body>
+</html>
